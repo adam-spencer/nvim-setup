@@ -99,7 +99,7 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  vim.g.have_nerd_font = true
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -374,6 +374,7 @@ do
       { '<leader>t', group = '[T]oggle' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
       { 'gr', group = 'LSP Actions', mode = { 'n' } },
+      { 'gs', group = '[S]urround', mode = { 'n', 'v' } },
     },
   }
 
@@ -383,18 +384,20 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
+  vim.pack.add { gh 'navarasu/onedark.nvim' }
   ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
+  require('onedark').setup {
     styles = {
       comments = { italic = false }, -- Disable italics in comments
+      style = 'darker',
     },
   }
+  -- require('onedark').load()
 
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.cmd.colorscheme 'onedark'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -424,7 +427,17 @@ do
   -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
   -- - sd'   - [S]urround [D]elete [']quotes
   -- - sr)'  - [S]urround [R]eplace [)] [']
-  require('mini.surround').setup()
+  require('mini.surround').setup {
+      mappings = {
+      add = 'gsa',
+      delete = 'gsd',
+      find = 'gsf',
+      find_left = 'gsF',
+      highlight = 'gsh',
+      replace = 'gsr',
+      update_n_lines = 'gsn',
+    },
+  }
 
   -- Simple and easy statusline.
   --  You could remove this setup call if you don't like it,
@@ -944,6 +957,35 @@ do
       end
     end,
   })
+end
+
+do
+  -- Autolist (List continuation)
+  vim.pack.add{ gh "gaoDean/autolist.nvim" }
+  require("autolist").setup()
+
+  vim.keymap.set("i", "<tab>", "<cmd>AutolistTab<cr>")
+  vim.keymap.set("i", "<s-tab>", "<cmd>AutolistShiftTab<cr>")
+  -- vim.keymap.set("i", "<c-t>", "<c-t><cmd>AutolistRecalculate<cr>") -- an example of using <c-t> to indent
+  vim.keymap.set("i", "<CR>", "<CR><cmd>AutolistNewBullet<cr>")
+  vim.keymap.set("n", "o", "o<cmd>AutolistNewBullet<cr>")
+  vim.keymap.set("n", "O", "O<cmd>AutolistNewBulletBefore<cr>")
+  vim.keymap.set("n", "<CR>", "<cmd>AutolistToggleCheckbox<cr><CR>")
+  vim.keymap.set("n", "<C-r>", "<cmd>AutolistRecalculate<cr>")
+
+  -- cycle list types with dot-repeat
+  vim.keymap.set("n", "<leader>cn", require("autolist").cycle_next_dr, { expr = true })
+  vim.keymap.set("n", "<leader>cp", require("autolist").cycle_prev_dr, { expr = true })
+
+  -- if you don't want dot-repeat
+  -- vim.keymap.set("n", "<leader>cn", "<cmd>AutolistCycleNext<cr>")
+  -- vim.keymap.set("n", "<leader>cp", "<cmd>AutolistCycleNext<cr>")
+
+  -- functions to recalculate list on edit
+  vim.keymap.set("n", ">>", ">><cmd>AutolistRecalculate<cr>")
+  vim.keymap.set("n", "<<", "<<<cmd>AutolistRecalculate<cr>")
+  vim.keymap.set("n", "dd", "dd<cmd>AutolistRecalculate<cr>")
+  vim.keymap.set("v", "d", "d<cmd>AutolistRecalculate<cr>")
 end
 
 -- ============================================================
