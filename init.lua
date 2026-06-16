@@ -988,6 +988,17 @@ do
   vim.keymap.set("v", "d", "d<cmd>AutolistRecalculate<cr>")
 end
 
+-- rustacean vim
+vim.pack.add {{
+  src = 'https://github.com/mrcjkb/rustaceanvim',
+  -- To avoid being surprised by breaking changes,
+  -- I recommend you set a version range
+  version = vim.version.range('^9')
+}}
+
+-- remove search highlighting with esc in normal mode
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>', { desc = 'Clear search highlight' })
+
 -- ============================================================
 -- SECTION 9: OPTIONAL EXAMPLES / NEXT STEPS
 -- kickstart.plugins.* examples
