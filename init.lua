@@ -434,7 +434,7 @@ do
   -- - sd'   - [S]urround [D]elete [']quotes
   -- - sr)'  - [S]urround [R]eplace [)] [']
   require('mini.surround').setup {
-      mappings = {
+    mappings = {
       add = 'gsa',
       delete = 'gsd',
       find = 'gsf',
@@ -724,7 +724,7 @@ do
         },
       },
     },
-    rust_analyzer = {},
+    -- rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
     --    https://github.com/pmizio/typescript-tools.nvim
@@ -811,8 +811,9 @@ do
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
-        -- lua = true,
-        -- python = true,
+        lua = true,
+        python = true,
+        -- rust = true, -- handled by rustaceanvim
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -825,9 +826,10 @@ do
     },
     -- You can also specify external formatters in here.
     formatters_by_ft = {
-      -- rust = { 'rustfmt' },
+      -- rust = { 'rustfmt' }, -- handled by rustaceanvim
       -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
+      python = { 'ruff_format' },
+      go = { 'goimports' },
       --
       -- You can use 'stop_after_first' to run the first available formatter from the list
       -- javascript = { "prettierd", "prettier", stop_after_first = true },
@@ -883,11 +885,11 @@ do
       -- See `:help blink-cmp-config-keymap` for defining your own keymap
       preset = 'default',
 
-      ['<CR>'] = { 'accept', 'fallback' },  -- enter => accept completion
+      ['<CR>'] = { 'accept', 'fallback' }, -- enter => accept completion
       ['<Tab>'] = { 'select_next', 'fallback' }, -- tab => next item
       ['<S-Tab>'] = { 'select_prev', 'fallback' }, -- shift-tab => prev item
 
-      ['<C-Space>'] = { 'show', 'fallback' },  -- ctrl-space => force open menu
+      ['<C-Space>'] = { 'show', 'fallback' }, -- ctrl-space => force open menu
       ['<C-e>'] = { 'hide' }, -- ctrl-e => close completions menu
 
       -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
@@ -990,43 +992,70 @@ end
 
 do
   -- Autolist (List continuation)
-  vim.pack.add{ gh "gaoDean/autolist.nvim" }
-  require("autolist").setup()
+  vim.pack.add { gh 'gaoDean/autolist.nvim' }
+  require('autolist').setup()
 
-  vim.keymap.set("i", "<tab>", "<cmd>AutolistTab<cr>")
-  vim.keymap.set("i", "<s-tab>", "<cmd>AutolistShiftTab<cr>")
+  vim.keymap.set('i', '<tab>', '<cmd>AutolistTab<cr>')
+  vim.keymap.set('i', '<s-tab>', '<cmd>AutolistShiftTab<cr>')
   -- vim.keymap.set("i", "<c-t>", "<c-t><cmd>AutolistRecalculate<cr>") -- an example of using <c-t> to indent
-  vim.keymap.set("i", "<CR>", "<CR><cmd>AutolistNewBullet<cr>")
-  vim.keymap.set("n", "o", "o<cmd>AutolistNewBullet<cr>")
-  vim.keymap.set("n", "O", "O<cmd>AutolistNewBulletBefore<cr>")
-  vim.keymap.set("n", "<CR>", "<cmd>AutolistToggleCheckbox<cr><CR>")
-  vim.keymap.set("n", "<leader>ar", "<cmd>AutolistRecalculate<cr>")
+  vim.keymap.set('i', '<CR>', '<CR><cmd>AutolistNewBullet<cr>')
+  vim.keymap.set('n', 'o', 'o<cmd>AutolistNewBullet<cr>')
+  vim.keymap.set('n', 'O', 'O<cmd>AutolistNewBulletBefore<cr>')
+  vim.keymap.set('n', '<CR>', '<cmd>AutolistToggleCheckbox<cr><CR>')
+  vim.keymap.set('n', '<leader>ar', '<cmd>AutolistRecalculate<cr>')
 
   -- cycle list types with dot-repeat
-  vim.keymap.set("n", "<leader>cn", require("autolist").cycle_next_dr, { expr = true })
-  vim.keymap.set("n", "<leader>cp", require("autolist").cycle_prev_dr, { expr = true })
+  vim.keymap.set('n', '<leader>cn', require('autolist').cycle_next_dr, { expr = true })
+  vim.keymap.set('n', '<leader>cp', require('autolist').cycle_prev_dr, { expr = true })
 
   -- if you don't want dot-repeat
   -- vim.keymap.set("n", "<leader>cn", "<cmd>AutolistCycleNext<cr>")
   -- vim.keymap.set("n", "<leader>cp", "<cmd>AutolistCycleNext<cr>")
 
   -- functions to recalculate list on edit
-  vim.keymap.set("n", ">>", ">><cmd>AutolistRecalculate<cr>")
-  vim.keymap.set("n", "<<", "<<<cmd>AutolistRecalculate<cr>")
-  vim.keymap.set("n", "dd", "dd<cmd>AutolistRecalculate<cr>")
-  vim.keymap.set("v", "d", "d<cmd>AutolistRecalculate<cr>")
+  vim.keymap.set('n', '>>', '>><cmd>AutolistRecalculate<cr>')
+  vim.keymap.set('n', '<<', '<<<cmd>AutolistRecalculate<cr>')
+  vim.keymap.set('n', 'dd', 'dd<cmd>AutolistRecalculate<cr>')
+  vim.keymap.set('v', 'd', 'd<cmd>AutolistRecalculate<cr>')
 end
 
 -- rustacean vim
-vim.pack.add {{
-  src = 'https://github.com/mrcjkb/rustaceanvim',
-  -- To avoid being surprised by breaking changes,
-  -- I recommend you set a version range
-  version = vim.version.range('^9')
-}}
+vim.pack.add {
+  {
+    src = 'https://github.com/mrcjkb/rustaceanvim',
+    -- To avoid being surprised by breaking changes,
+    -- I recommend you set a version range
+    version = vim.version.range '^9',
+  },
+}
 
 -- remove search highlighting with esc in normal mode
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>', { desc = 'Clear search highlight' })
+
+-- ============================================================
+-- SECTION X: LINTING
+-- ============================================================
+do
+  vim.pack.add { gh 'mfussenegger/nvim-lint' }
+
+  local lint = require 'lint'
+
+  lint.linters_by_ft = {
+    python = { 'ruff' },
+  }
+
+  vim.api.nvim_create_autocmd({ 'BufWritePost', 'InsertLeave' }, {
+    callback = function() lint.try_lint() end,
+  })
+
+  -- Does ruff fixes on 'leader + c + f'
+  vim.keymap.set('n', '<leader>cf', function()
+    local file = vim.fn.expand '%'
+    vim.fn.system('ruff check --fix ' .. file)
+    vim.notify('Ruff fixes applied', vim.log.levels.INFO)
+    vim.cmd 'edit'
+  end, { desc = 'Fix lint issues (Ruff)' })
+end
 
 -- ============================================================
 -- SECTION 10: OPTIONAL EXAMPLES / NEXT STEPS
