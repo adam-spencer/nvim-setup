@@ -706,9 +706,25 @@ do
   ---@type table<string, vim.lsp.Config>
   local servers = {
     -- clangd = {},
-    -- gopls = {},
-    -- pyright = {},
-    -- rust_analyzer = {},
+    gopls = {
+      settings = {
+        gopls = {
+          usePlaceholders = true,
+          completeUnimported = true,
+        },
+      },
+    },
+    pyright = {
+      settings = {
+        python = {
+          analysis = {
+            autoSearchPaths = true,
+            useLibraryCodeForTypes = true,
+          },
+        },
+      },
+    },
+    rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
     --    https://github.com/pmizio/typescript-tools.nvim
@@ -866,6 +882,13 @@ do
       --
       -- See `:help blink-cmp-config-keymap` for defining your own keymap
       preset = 'default',
+
+      ['<CR>'] = { 'accept', 'fallback' },  -- enter => accept completion
+      ['<Tab>'] = { 'select_next', 'fallback' }, -- tab => next item
+      ['<S-Tab>'] = { 'select_prev', 'fallback' }, -- shift-tab => prev item
+
+      ['<C-Space>'] = { 'show', 'fallback' },  -- ctrl-space => force open menu
+      ['<C-e>'] = { 'hide' }, -- ctrl-e => close completions menu
 
       -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
       --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
