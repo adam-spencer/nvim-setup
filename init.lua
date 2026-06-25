@@ -1061,6 +1061,19 @@ do
 end
 
 -- ============================================================
+-- SECTION XI: AUTOPAIRS
+-- Automatically close brackets, quotes, and format on Enter
+-- ============================================================
+do
+  vim.pack.add { gh 'windwp/nvim-autopairs' }
+  require('nvim-autopairs').setup {
+    -- Enable treesitter integration so it checks context
+    -- (e.g., it won't auto-close brackets if you're typing inside a string or comment)
+    check_ts = true,
+  }
+end
+
+-- ============================================================
 -- SECTION 10: OPTIONAL EXAMPLES / NEXT STEPS
 -- kickstart.plugins.* examples
 -- ============================================================
