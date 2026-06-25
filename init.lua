@@ -378,25 +378,28 @@ do
   }
 
   -- [[ Colorscheme ]]
-  -- You can easily change to a different colorscheme.
-  -- Change the name of the colorscheme plugin below, and then
-  -- change the command under that to load whatever the name of that colorscheme is.
-  --
-  -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  -- Using Onedark, starting in light mode, allowing toggle between light and dark mode
   vim.pack.add { gh 'navarasu/onedark.nvim' }
+
+  -- Function to check the macOS system theme
+  local function get_mac_theme()
+    local output = vim.fn.system 'defaults read -g AppleInterfaceStyle 2>/dev/null'
+    if vim.v.shell_error == 0 and output:match 'Dark' then return 'darker' end
+    return 'light'
+  end
+
   ---@diagnostic disable-next-line: missing-fields
   require('onedark').setup {
+    style = get_mac_theme(),
+
+    toggle_style_key = '<leader>tc',
+    toggle_style_list = { 'darker', 'light' },
+
     styles = {
       comments = { italic = false }, -- Disable italics in comments
-      style = 'darker',
     },
   }
-  -- require('onedark').load()
-
-  -- Load the colorscheme here.
-  -- Like many other themes, this one has different styles, and you could load
-  -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'onedark'
+  require('onedark').load()
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
