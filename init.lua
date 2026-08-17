@@ -307,7 +307,7 @@ do
     style = get_mac_theme(),
 
     toggle_style_key = '<leader>tc',
-    toggle_style_list = { 'darker', 'light' },
+    toggle_style_list = { 'dark', 'light' },
 
     styles = {
       comments = { italic = false }, -- Disable italics in comments
@@ -1017,6 +1017,33 @@ do
   vim.pack.add { 'https://codeberg.org/andyg/leap.nvim' }
   require('leap').setup {}
   vim.keymap.set({ 'n', 'x', 'o' }, '<leader>n', '<Plug>(leap)')
+end
+
+-- ============================================================
+-- SECTION XIII: Obsidian
+-- obsidian.nvim - adds Obsidian support
+-- ============================================================
+do
+  vim.pack.add {
+    {
+      src = gh 'obsidian-nvim/obsidian.nvim',
+      version = vim.version.range '*',
+    },
+  }
+
+  require('obsidian').setup {
+    legacy_commands = false,
+    picker = {
+      name = 'telescope.nvim',
+      -- name = "fzf-lua",
+    },
+    workspaces = {
+      {
+        name = 'notes',
+        path = '/Users/adam.spencer/Documents/obsidian-notes',
+      },
+    },
+  }
 end
 
 -- ============================================================
