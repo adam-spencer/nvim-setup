@@ -6,6 +6,12 @@ do
   -- Enable faster startup by caching compiled Lua modules
   vim.loader.enable()
 
+  -- If running inside VSCode / Cursor via asvetliakov.vscode-neovim
+  if vim.g.vscode then
+    require 'custom.vscode'
+    return
+  end
+
   -- Set <space> as the leader key
   -- See `:help mapleader`
   --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
