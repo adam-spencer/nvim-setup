@@ -916,7 +916,11 @@ end
 do
   -- Autolist (List continuation)
   vim.pack.add { gh 'gaoDean/autolist.nvim' }
-  require('autolist').setup()
+  require('autolist').setup {
+    colon = { preferred = '*' }, -- lines ending in `:` start a `*` list
+  }
+  -- Indent colon-started lists by a single space instead of a tab (only used for the colon rule)
+  require('autolist.config').tab = ' '
 
   vim.keymap.set('i', '<tab>', '<cmd>AutolistTab<cr>')
   vim.keymap.set('i', '<s-tab>', '<cmd>AutolistShiftTab<cr>')
