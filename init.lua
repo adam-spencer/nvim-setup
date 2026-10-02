@@ -1026,7 +1026,13 @@ do
 
   vim.pack.add { 'https://codeberg.org/andyg/leap.nvim' }
   require('leap').setup {}
-  vim.keymap.set({ 'n', 'x', 'o' }, '<leader>n', '<Plug>(leap)')
+  -- vim.keymap.set({ 'n', 'x', 'o' }, '<leader>n', '<Plug>(leap)')
+  -- vim.keymap.set({ 'n', 'x', 'o' }, '<leader>N', '<Plug>(leap-from-window)', { desc = 'Leap to other windows' })
+  vim.keymap.set({ 'n', 'x', 'o' }, 's', '<Plug>(leap)')
+  vim.keymap.set({ 'n', 'x', 'o' }, 'S', function()
+    local wins = vim.tbl_filter(function(w) return vim.api.nvim_win_get_config(w).focusable end, vim.api.nvim_tabpage_list_wins(0))
+    require('leap').leap { target_windows = wins }
+  end, { desc = 'Leap across all windows' })
 end
 
 -- ============================================================
