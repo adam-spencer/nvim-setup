@@ -937,6 +937,13 @@ do
     callback = function()
       -- The { buffer = true } option gives this mapping priority over nvim-autopairs
       vim.keymap.set('i', '<CR>', '<CR><cmd>AutolistNewBullet<cr>', { buffer = true })
+
+      -- functions to recalculate list on edit (buffer-local: in other filetypes autolist
+      -- treats lines like `l.foo()` as ordered lists and rewrites them)
+      vim.keymap.set('n', '>>', '>><cmd>AutolistRecalculate<cr>', { buffer = true })
+      vim.keymap.set('n', '<<', '<<<cmd>AutolistRecalculate<cr>', { buffer = true })
+      vim.keymap.set('n', 'dd', 'dd<cmd>AutolistRecalculate<cr>', { buffer = true })
+      vim.keymap.set('x', 'd', 'd<cmd>AutolistRecalculate<cr>', { buffer = true })
     end,
   })
 
@@ -947,12 +954,6 @@ do
   -- if you don't want dot-repeat
   -- vim.keymap.set("n", "<leader>cn", "<cmd>AutolistCycleNext<cr>")
   -- vim.keymap.set("n", "<leader>cp", "<cmd>AutolistCycleNext<cr>")
-
-  -- functions to recalculate list on edit
-  vim.keymap.set('n', '>>', '>><cmd>AutolistRecalculate<cr>')
-  vim.keymap.set('n', '<<', '<<<cmd>AutolistRecalculate<cr>')
-  vim.keymap.set('n', 'dd', 'dd<cmd>AutolistRecalculate<cr>')
-  vim.keymap.set('v', 'd', 'd<cmd>AutolistRecalculate<cr>')
 end
 
 -- rustacean vim
