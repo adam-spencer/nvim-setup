@@ -809,8 +809,8 @@ do
       preset = 'default',
 
       ['<CR>'] = { 'accept', 'fallback' }, -- enter => accept completion
-      ['<Tab>'] = { 'select_next', 'fallback' }, -- tab => next item
-      ['<S-Tab>'] = { 'select_prev', 'fallback' }, -- shift-tab => prev item
+      ['<Tab>'] = { 'select_next', 'snippet_forward', 'fallback' }, -- tab => next item / next snippet placeholder
+      ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' }, -- shift-tab => prev item / prev snippet placeholder
 
       ['<C-Space>'] = { 'show', 'fallback' }, -- ctrl-space => force open menu
       ['<C-e>'] = { 'hide' }, -- ctrl-e => close completions menu
@@ -922,38 +922,37 @@ do
   -- Indent colon-started lists by a single space instead of a tab (only used for the colon rule)
   require('autolist.config').tab = ' '
 
-  vim.keymap.set('i', '<tab>', '<cmd>AutolistTab<cr>')
-  vim.keymap.set('i', '<s-tab>', '<cmd>AutolistShiftTab<cr>')
-  -- vim.keymap.set("i", "<c-t>", "<c-t><cmd>AutolistRecalculate<cr>") -- an example of using <c-t> to indent
-  -- vim.keymap.set('i', '<CR>', '<CR><cmd>AutolistNewBullet<cr>')
-  vim.keymap.set('n', 'o', 'o<cmd>AutolistNewBullet<cr>')
-  vim.keymap.set('n', 'O', 'O<cmd>AutolistNewBulletBefore<cr>')
-  vim.keymap.set('n', '<CR>', '<cmd>AutolistToggleCheckbox<cr><CR>')
-  vim.keymap.set('n', '<leader>ar', '<cmd>AutolistRecalculate<cr>')
-
-  -- Change autolist enter key to only work in md / text files - avoids issues with autopairs
+  -- Autolist mappings are buffer-local to md / text files only. Globally they misbehave in code:
+  -- <Tab> mid-line inserts one char to the right, and recalculate rewrites lines like `l.foo()`
   vim.api.nvim_create_autocmd('FileType', {
     pattern = { 'markdown', 'text' },
     callback = function()
-      -- The { buffer = true } option gives this mapping priority over nvim-autopairs
-      vim.keymap.set('i', '<CR>', '<CR><cmd>AutolistNewBullet<cr>', { buffer = true })
+      local function map(mode, lhs, rhs, opts) vim.keymap.set(mode, lhs, rhs, vim.tbl_extend('force', { buffer = true }, opts or {})) end
 
-      -- functions to recalculate list on edit (buffer-local: in other filetypes autolist
-      -- treats lines like `l.foo()` as ordered lists and rewrites them)
-      vim.keymap.set('n', '>>', '>><cmd>AutolistRecalculate<cr>', { buffer = true })
-      vim.keymap.set('n', '<<', '<<<cmd>AutolistRecalculate<cr>', { buffer = true })
-      vim.keymap.set('n', 'dd', 'dd<cmd>AutolistRecalculate<cr>', { buffer = true })
-      vim.keymap.set('x', 'd', 'd<cmd>AutolistRecalculate<cr>', { buffer = true })
+      map('i', '<tab>', '<cmd>AutolistTab<cr>')
+      map('i', '<s-tab>', '<cmd>AutolistShiftTab<cr>')
+      -- map('i', '<c-t>', '<c-t><cmd>AutolistRecalculate<cr>') -- an example of using <c-t> to indent
+      -- buffer-local also gives this mapping priority over nvim-autopairs
+      map('i', '<CR>', '<CR><cmd>AutolistNewBullet<cr>')
+      map('n', 'o', 'o<cmd>AutolistNewBullet<cr>')
+      map('n', 'O', 'O<cmd>AutolistNewBulletBefore<cr>')
+      map('n', '<CR>', '<cmd>AutolistToggleCheckbox<cr><CR>')
+      map('n', '<leader>ar', '<cmd>AutolistRecalculate<cr>')
+
+      -- cycle list types with dot-repeat
+      map('n', '<leader>cn', require('autolist').cycle_next_dr, { expr = true })
+      map('n', '<leader>cp', require('autolist').cycle_prev_dr, { expr = true })
+      -- if you don't want dot-repeat
+      -- map('n', '<leader>cn', '<cmd>AutolistCycleNext<cr>')
+      -- map('n', '<leader>cp', '<cmd>AutolistCycleNext<cr>')
+
+      -- functions to recalculate list on edit
+      map('n', '>>', '>><cmd>AutolistRecalculate<cr>')
+      map('n', '<<', '<<<cmd>AutolistRecalculate<cr>')
+      map('n', 'dd', 'dd<cmd>AutolistRecalculate<cr>')
+      map('x', 'd', 'd<cmd>AutolistRecalculate<cr>')
     end,
   })
-
-  -- cycle list types with dot-repeat
-  vim.keymap.set('n', '<leader>cn', require('autolist').cycle_next_dr, { expr = true })
-  vim.keymap.set('n', '<leader>cp', require('autolist').cycle_prev_dr, { expr = true })
-
-  -- if you don't want dot-repeat
-  -- vim.keymap.set("n", "<leader>cn", "<cmd>AutolistCycleNext<cr>")
-  -- vim.keymap.set("n", "<leader>cp", "<cmd>AutolistCycleNext<cr>")
 end
 
 -- rustacean vim
