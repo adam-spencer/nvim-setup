@@ -99,7 +99,59 @@ require('mini.surround').setup {
 -- Leap (movement / jumping)
 vim.pack.add { 'https://codeberg.org/andyg/leap.nvim' }
 require('leap').setup {}
-vim.keymap.set({ 'n', 'x', 'o' }, '<leader>n', '<Plug>(leap)', { desc = 'Leap motion' })
+-- Leap only searches Neovim's w0..w$, but vscode-neovim only re-syncs a window's
+-- viewport when VSCode scrolls without the cursor moving, so after cursor motions
+-- Neovim's idea of what's on screen drifts from VSCode's. Sync before leaping.
+local function sync_viewports(wins)
+  local eval_ok, editors = pcall(vscode.eval, [[
+    return vscode.window.visibleTextEditors
+      .filter((e) => e.visibleRanges.length > 0)
+      .map((e) => ({
+        uri: e.document.uri.toString(),
+        active: e === vscode.window.activeTextEditor,
+        top: e.visibleRanges[0].start.line,
+        bot: e.visibleRanges[e.visibleRanges.length - 1].end.line,
+      }))
+  ]])
+  if not eval_ok or type(editors) ~= 'table' then return end
+
+  local cur = vim.api.nvim_get_current_win()
+  local claimed = {}
+  for _, win in ipairs(wins) do
+    local uri = vim.b[vim.api.nvim_win_get_buf(win)].vscode_uri
+    -- Match by document URI; the active editor always belongs to the current window
+    -- (disambiguates the same file open in two splits)
+    local match
+    for i, e in ipairs(editors) do
+      if not claimed[i] and e.uri == uri and (win == cur) == e.active then
+        match, claimed[i] = e, true
+        break
+      end
+    end
+    if match then
+      vim.api.nvim_win_call(win, function()
+        vim.api.nvim_win_set_height(win, match.bot - match.top + 1)
+        vim.fn.winrestview { topline = match.top + 1 }
+      end)
+    end
+  end
+end
+
+local function leap_in(wins, opts)
+  sync_viewports(wins)
+  require('leap').leap(vim.tbl_extend('force', { windows = wins }, opts or {}))
+end
+
+-- Same as <Plug>(leap), plus the viewport sync
+vim.keymap.set({ 'n', 'x', 'o' }, 's', function() leap_in({ vim.api.nvim_get_current_win() }, { inclusive = true }) end, { desc = 'Leap motion' })
+-- Each visible VSCode editor is backed by a Neovim window; vscode-neovim focuses
+-- the matching editor on WinEnter. Only target windows holding VSCode documents.
+vim.keymap.set({ 'n', 'x', 'o' }, 'S', function()
+  leap_in(vim.tbl_filter(
+    function(w) return vim.b[vim.api.nvim_win_get_buf(w)].vscode_controlled == true end,
+    vim.api.nvim_tabpage_list_wins(0)
+  ))
+end, { desc = 'Leap across all editors' })
 
 -- =======================================================================
 -- Window / Split Navigation (Cursor Editor Groups)
