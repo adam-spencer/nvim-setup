@@ -304,7 +304,7 @@ do
   -- Function to check the macOS system theme
   local function get_mac_theme()
     local output = vim.fn.system 'defaults read -g AppleInterfaceStyle 2>/dev/null'
-    if vim.v.shell_error == 0 and output:match 'Dark' then return 'darker' end
+    if vim.v.shell_error == 0 and output:match 'Dark' then return 'dark' end
     return 'light'
   end
 
@@ -1030,9 +1030,10 @@ do
   -- vim.keymap.set({ 'n', 'x', 'o' }, '<leader>N', '<Plug>(leap-from-window)', { desc = 'Leap to other windows' })
   vim.keymap.set({ 'n', 'x', 'o' }, 's', '<Plug>(leap)')
   vim.keymap.set({ 'n', 'x', 'o' }, 'S', function()
-    local wins = vim.tbl_filter(function(w) return vim.api.nvim_win_get_config(w).focusable end, vim.api.nvim_tabpage_list_wins(0))
-    require('leap').leap { target_windows = wins }
-  end, { desc = 'Leap across all windows' })
+    local cur = vim.api.nvim_get_current_win()
+    local wins = vim.tbl_filter(function(w) return w ~= cur and vim.api.nvim_win_get_config(w).focusable end, vim.api.nvim_tabpage_list_wins(0))
+    require('leap').leap { windows = wins }
+  end, { desc = 'Leap to other windows' })
 end
 
 -- ============================================================

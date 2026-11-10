@@ -147,11 +147,12 @@ vim.keymap.set({ 'n', 'x', 'o' }, 's', function() leap_in({ vim.api.nvim_get_cur
 -- Each visible VSCode editor is backed by a Neovim window; vscode-neovim focuses
 -- the matching editor on WinEnter. Only target windows holding VSCode documents.
 vim.keymap.set({ 'n', 'x', 'o' }, 'S', function()
+  local cur = vim.api.nvim_get_current_win()
   leap_in(vim.tbl_filter(
-    function(w) return vim.b[vim.api.nvim_win_get_buf(w)].vscode_controlled == true end,
+    function(w) return w ~= cur and vim.b[vim.api.nvim_win_get_buf(w)].vscode_controlled == true end,
     vim.api.nvim_tabpage_list_wins(0)
   ))
-end, { desc = 'Leap across all editors' })
+end, { desc = 'Leap to other editors' })
 
 -- =======================================================================
 -- Window / Split Navigation (Cursor Editor Groups)
