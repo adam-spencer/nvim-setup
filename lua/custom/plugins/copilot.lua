@@ -6,8 +6,8 @@
 -- Disable the default <Tab> accept map so blink.cmp / autolist keep Tab.
 vim.g.copilot_no_tab_map = true
 
--- Off by default in markdown; use <leader>tp to enable in a given buffer.
-vim.g.copilot_filetypes = { markdown = false }
+-- Off by default for every filetype; use <leader>tp to enable in a given buffer.
+vim.g.copilot_filetypes = { ['*'] = false }
 
 vim.pack.add { 'https://github.com/github/copilot.vim' }
 
@@ -20,7 +20,7 @@ vim.keymap.set('i', '<C-j>', 'copilot#Accept("\\<CR>")', {
 })
 
 -- copilot.vim only has :Copilot enable/disable (global). Toggle the buffer
--- flag so markdown can stay off by filetype and still be turned on here.
+-- flag so Copilot can stay off by default and still be turned on here.
 vim.keymap.set('n', '<leader>tp', function()
   local enabled = vim.fn['copilot#Enabled']() == 1
   vim.b.copilot_enabled = not enabled
