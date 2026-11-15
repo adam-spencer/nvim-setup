@@ -870,6 +870,9 @@ do
   local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
   require('nvim-treesitter').install(parsers)
 
+  -- Languages whose treesitter indent queries are poor; Vim's built-in indent is used instead
+  local skip_ts_indent = { ocaml = true, ocaml_interface = true }
+
   ---@param buf integer
   ---@param language string
   local function treesitter_try_attach(buf, language)
@@ -888,7 +891,7 @@ do
     local has_indent_query = vim.treesitter.query.get(language, 'indents') ~= nil
 
     -- Enable treesitter based indentation
-    if has_indent_query then vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()" end
+    if has_indent_query and not skip_ts_indent[language] then vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()" end
   end
 
   local available_parsers = require('nvim-treesitter').get_available()
@@ -911,6 +914,16 @@ do
         -- Try to enable treesitter features in case the parser exists but is not available from `nvim-treesitter`
         treesitter_try_attach(buf, language)
       end
+    end,
+  })
+
+  -- OCaml convention (and ocamlformat's default) is 2-space indentation
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'ocaml',
+    callback = function()
+      vim.bo.shiftwidth = 2
+      vim.bo.tabstop = 2
+      vim.bo.expandtab = true
     end,
   })
 end
