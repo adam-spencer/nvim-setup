@@ -1033,11 +1033,8 @@ end
 -- + Leap (move around page)
 -- ============================================================
 do
-  vim.pack.add { gh 'jinh0/eyeliner.nvim' }
-  require('eyeliner').setup {
-    highlight_on_key = true,
-    dim = true,
-  }
+  vim.pack.add { gh 'cosmicbuffalo/eyeliner.nvim' }
+  require('custom.eyeliner').setup()
 
   vim.pack.add { 'https://codeberg.org/andyg/leap.nvim' }
   require('leap').setup {}

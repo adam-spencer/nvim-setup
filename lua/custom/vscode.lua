@@ -50,11 +50,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- =======================================================================
 
 -- Eyeliner (f/t unique letter highlighting - user favorite!)
-vim.pack.add { gh 'jinh0/eyeliner.nvim' }
-require('eyeliner').setup {
-  highlight_on_key = true,
-  dim = true,
-}
+vim.pack.add { gh 'cosmicbuffalo/eyeliner.nvim' }
+require('custom.eyeliner').setup()
 
 -- Eyeliner highlights:
 -- By default, eyeliner tries to copy colors from 'Constant' and 'Define'.
